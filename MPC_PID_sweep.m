@@ -2,11 +2,12 @@ clear
 
 % declare variables for use in WOA simulink
 Max_iteration = 100;
-SearchAgents_no = 10;
+SearchAgents_no = 8; % size of max parpool
 lb = [0 0 0 0 1 1];
-ub = [2 1 2 1 3 3];
+ub = [3 2 5 5 10 10];
 var_list = ["Kp", "Ki", "Qy", "Qey", "Rang", "Sang"];
-dim = size(var_list);
+dim = size(var_list, 2);
+par_flag = 1;
 
 % load in necessary variables for simulink model
 run("LoadDrivingScenario")
@@ -14,11 +15,20 @@ run("LoadDrivingScenario")
 model = 'DrivingScenario';
 load_system(model)
 
+% Start parallel pool
+pool = gcp('nocreate');
+if isempty(pool)
+    parpool('local');
+end
+
 % Run WOA with the defined model on the defined variables
 [Leader_score,Leader_pos,Convergence_curve] = WOA_simulink(SearchAgents_no, ...
                                                 Max_iteration, lb, ub, dim, ...
-                                                model, var_list, 1);
+                                                model, var_list, 1, par_flag);
 
 % Results
 disp(Leader_score)
-plot(size(Convergence_curve), Convergence_curve)
+disp(Leader_pos)
+plot(1:numel(Convergence_curve), Convergence_curve)
+xlabel('Iteration')
+ylabel('Best score')

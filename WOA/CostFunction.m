@@ -1,14 +1,22 @@
-% The default name of the objective function is CostFunction.
-% If you have a look at the CostFunction.m file, you may notice
-% that the cost function gets the variables in a vector ([x1 x2 ... xn]) and
-% returns the objective value. You can either write you objective function
-% in this file or create a new file and pass its name to the toolbox.
-% Remember to follow the same structure for input and output if you decided 
-% to go for the second option. 
+% Cost function for WOA using simulink
 
-%% TODO remake to simulate run in simulink with new variables, and output Cost based on time in simulation
-function Cost = CostFunction( x )
-dim=size(x,2);
-Cost=sum(x.^2); % Sphere function
+% This cost function uses the provided model and variables, 
+% Sets the variables in the simulink model,
+% Then evaluates the system with the parameters and returns the result
+
+function Cost = CostFunction(model, var_list, x)
+
+    in = Simulink.SimulationInput(model);
+
+    for i = 1:size(var_list, 2)
+        in = in.setVariable(var_list(i), x(i));
+    end
+
+    out = sim(in);
+
+    % Current cost is based on survival time in the simulation.
+    % Change if you have a specific error to minimize/ value to maximize
+    Cost = max(out.logsout{1}.Values.Time);
+    % Cost = out.logsout.find("Variable").Values.Data
+
 end
-
