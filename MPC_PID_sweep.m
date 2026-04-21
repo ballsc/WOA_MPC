@@ -1,11 +1,11 @@
 clear
 
 % declare variables for use in WOA simulink
-Max_iteration = 100;
+Max_iteration = 10;
 SearchAgents_no = 8; % size of max parpool
 lb = [0 0 0 0 1 1];
-ub = [3 2 5 5 10 10];
-var_list = ["Kp", "Ki", "Qy", "Qey", "Rang", "Sang"];
+ub = [4 3 5 5 15 15];
+var_list = ["Kp", "Ki", "Qy", "Qyaw", "Rang", "Sang"];
 dim = size(var_list, 2);
 par_flag = 1;
 
@@ -16,9 +16,11 @@ model = 'DrivingScenario';
 load_system(model)
 
 % Start parallel pool
-pool = gcp('nocreate');
-if isempty(pool)
-    parpool('local');
+if par_flag
+    pool = gcp('nocreate');
+    if isempty(pool)
+        parpool('local');
+    end
 end
 
 % Run WOA with the defined model on the defined variables

@@ -47,6 +47,7 @@ while t < Max_iter
     
             % Set variables in simIn from each whale
             for j = 1:dim
+                sprintf("Setting var %s with %g", var_list(j), Positions(i, j));
                 simIn(i) = simIn(i).setVariable(var_list(j), Positions(i, j));
             end
     
@@ -67,6 +68,7 @@ while t < Max_iter
             else
                 % Penalize failed runs
                 All_fitness(i) = -inf;
+                error(i) = simOut(i).ErrorMessage;
             end
     
             if All_fitness(i) > Leader_score
@@ -80,25 +82,41 @@ while t < Max_iter
         for i=1:size(Positions,1)
         
             % Return back the search agents that go beyond the boundaries of the search space
+            for j = 1:dim
+                % if Positions(j, i) < lb(j)
+                %     Positions(i, j) = lb(j) + (lb(j) - Positions(i, j));
+                % elseif Positions(i, j) > ub(j)
+                %     Positions(i, j) = ub(j) - (Positions(i, j) - ub(j));
+                % end
+                if Positions(i, j) < lb(j) || Positions(i, j) > ub(j)
+                    Positions(i, j) = lb(j) + rand()*(ub(j)-lb(j));
+                end
+
+                Positions(i, j) = min(max(Positions(i, j), lb(j)), ub(j));
+            end
+
             Flag4ub=Positions(i,:)>ub;
             Flag4lb=Positions(i,:)<lb;
             Positions(i,:)=(Positions(i,:).*(~(Flag4ub+Flag4lb)))+ub.*Flag4ub+lb.*Flag4lb;
+
+            
             
             in = Simulink.SimulationInput(model);
     
             for j = 1:size(var_list, 2)
-                in = in.setVariable(var_list(j), x(j));
+                sprintf("Setting var %s with %g", var_list(j), Positions(i, j));
+                in = in.setVariable(var_list(j), Positions(j));
             end
     
             out = sim(in);
         
             % Current cost is based on survival time in the simulation.
             % Change if you have a specific error to minimize/ value to maximize
-            fitness = max(out.logsout{1}.Values.Time);
+            fitness = max(out.logsout{1}.Values.Time)
             % Cost = out.logsout.find("Variable").Values.Data
             
             % Update the leader
-            if fitness<Leader_score % Change this to > for maximization problem
+            if fitness > Leader_score % Change this to > for maximization problem
                 Leader_score=fitness; % Update alpha
                 Leader_pos=Positions(i,:);
             end
