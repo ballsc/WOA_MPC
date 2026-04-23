@@ -1,7 +1,7 @@
 clear
 
 % declare variables for use in WOA simulink
-Max_iteration = 10;
+Max_iteration = 100;
 SearchAgents_no = 8; % size of max parpool
 lb = [0 0 0 0 1 1];
 ub = [4 3 5 5 15 15];
@@ -31,6 +31,3 @@ end
 % Results
 disp(Leader_score)
 disp(Leader_pos)
-plot(1:numel(Convergence_curve), Convergence_curve)
-xlabel('Iteration')
-ylabel('Best score')

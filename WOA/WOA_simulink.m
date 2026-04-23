@@ -35,9 +35,18 @@ while t < Max_iter
         for i = 1:SearchAgents_no
             
             % Return back the search agents that go beyond the boundaries of the search space
-            Flag4ub = Positions(i,:) > ub;
-            Flag4lb = Positions(i,:) < lb;
-            Positions(i,:) = (Positions(i,:).*(~(Flag4ub + Flag4lb))) + ub.*Flag4ub + lb.*Flag4lb;
+            for j = 1:dim
+                if Positions(i, j) < lb(j)
+                    Positions(i, j) = lb(j) + (lb(j) - Positions(i, j));
+                elseif Positions(i, j) > ub(j)
+                    Positions(i, j) = ub(j) - (Positions(i, j) - ub(j));
+                end
+                % if Positions(i, j) < lb(j) || Positions(i, j) > ub(j)
+                %     Positions(i, j) = lb(j) + rand()*(ub(j)-lb(j));
+                % end
+
+                Positions(i, j) = min(max(Positions(i, j), lb(j)), ub(j));
+            end
     
         end
     
@@ -58,13 +67,13 @@ while t < Max_iter
         % Simulate all whales in parallel
         simOut = parsim(simIn, "ShowProgress", "off", ...
                         "TransferBaseWorkspaceVariables", "on", ...
-                        "AttachedFiles", "OvalTrack.mat");
+                        "AttachedFiles", "leftCurve.mat");
     
         % Evaluate fitness from each output
         for i = 1:SearchAgents_no
             if isempty(simOut(i).ErrorMessage)
                 % Cost is based on total time in simulation
-                All_fitness(i) = max(simOut(i).logsout{1}.Values.Time)
+                All_fitness(i) = max(simOut(i).logsout{2}.Values.Time);
             else
                 % Penalize failed runs
                 All_fitness(i) = -inf;
@@ -76,6 +85,10 @@ while t < Max_iter
                 Leader_pos = Positions(i,:);
             end
         end
+        
+        disp(t)
+        disp(All_fitness)
+        disp(Positions)
 
     % Runs whales one at a time
     else
@@ -83,7 +96,7 @@ while t < Max_iter
         
             % Return back the search agents that go beyond the boundaries of the search space
             for j = 1:dim
-                % if Positions(j, i) < lb(j)
+                % if Positions(i, j) < lb(j)
                 %     Positions(i, j) = lb(j) + (lb(j) - Positions(i, j));
                 % elseif Positions(i, j) > ub(j)
                 %     Positions(i, j) = ub(j) - (Positions(i, j) - ub(j));
@@ -112,7 +125,8 @@ while t < Max_iter
         
             % Current cost is based on survival time in the simulation.
             % Change if you have a specific error to minimize/ value to maximize
-            fitness = max(out.logsout{1}.Values.Time)
+            fitness = max(out.logsout{2}.Values.Time)
+       
             % Cost = out.logsout.find("Variable").Values.Data
             
             % Update the leader
@@ -182,7 +196,5 @@ while t < Max_iter
         hold on
         scatter(t*ones(1, SearchAgents_no), All_fitness, '.', 'k')
     end
-
-    disp(Positions)
             
 end
