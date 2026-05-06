@@ -230,6 +230,7 @@ Example result files include:
 Results/best_whale_lookAhead10.mat
 Results/best_whale_lookAhead3.mat
 ```
+To save resutls, simply select the run results from the workspace, and export to a .mat file.
 
 ---
 
