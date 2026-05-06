@@ -1,4 +1,4 @@
-# WOA-MPC Lane-Centering Controller Optimization
+# Whale Optimization Algorithm for modifying Lane Centering Controller Weights in Simulink
 
 This repository contains a MATLAB/Simulink workflow for tuning a lane-centering controller using the **Whale Optimization Algorithm (WOA)**. The optimization loop tests different controller gains and MPC weights by running the Simulink driving scenario, evaluating each candidate controller, and saving the best-performing parameter set.
 
