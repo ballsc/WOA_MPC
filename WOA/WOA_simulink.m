@@ -8,6 +8,7 @@
 % ub=[ub1,ub2,...,ubn] where ubn is the upper bound of variable n
 % If all the variables have equal lower bound you can just
 % define lb and ub as two single number numbers
+% par_flag defines whether the system uses parallel (1) or not (0)
 
 
 % The Whale Optimization Algorithm
@@ -41,22 +42,18 @@ while t < Max_iter
                 elseif Positions(i, j) > ub(j)
                     Positions(i, j) = ub(j) - (Positions(i, j) - ub(j));
                 end
-                % if Positions(i, j) < lb(j) || Positions(i, j) > ub(j)
-                %     Positions(i, j) = lb(j) + rand()*(ub(j)-lb(j));
-                % end
 
                 Positions(i, j) = min(max(Positions(i, j), lb(j)), ub(j));
             end
     
         end
     
-        % Build SimIn Array for current generation
+        % Build SimIn Array for current whale generation
         for i = 1:SearchAgents_no
             simIn(i) = Simulink.SimulationInput(model);
     
             % Set variables in simIn from each whale
             for j = 1:dim
-                sprintf("Setting var %s with %g", var_list(j), Positions(i, j));
                 simIn(i) = simIn(i).setVariable(var_list(j), Positions(i, j));
             end
     
@@ -96,11 +93,7 @@ while t < Max_iter
         
             % Return back the search agents that go beyond the boundaries of the search space
             for j = 1:dim
-                % if Positions(i, j) < lb(j)
-                %     Positions(i, j) = lb(j) + (lb(j) - Positions(i, j));
-                % elseif Positions(i, j) > ub(j)
-                %     Positions(i, j) = ub(j) - (Positions(i, j) - ub(j));
-                % end
+
                 if Positions(i, j) < lb(j) || Positions(i, j) > ub(j)
                     Positions(i, j) = lb(j) + rand()*(ub(j)-lb(j));
                 end
@@ -125,8 +118,7 @@ while t < Max_iter
         
             % Current cost is based on survival time in the simulation.
             % Change if you have a specific error to minimize/ value to maximize
-            fitness = max(out.logsout{2}.Values.Time)
-       
+            fitness = max(out.logsout{2}.Values.Time);
             % Cost = out.logsout.find("Variable").Values.Data
             
             % Update the leader
@@ -149,10 +141,10 @@ while t < Max_iter
         r2 = rand(); % r2 is a random number in [0,1]
         
         A = 2*a*r1 - a;  % Eq. (2.3) in the paper
-        C = 2*r2;      % Eq. (2.4) in the paper
+        C = 2*r2;        % Eq. (2.4) in the paper
         
         
-        b = 1;               %  parameters in Eq. (2.5)
+        b = 1;                   %  parameters in Eq. (2.5)
         l = (a2 - 1)*rand + 1;   %  parameters in Eq. (2.5)
         
         p = rand();        % p in Eq. (2.6)
