@@ -53,6 +53,7 @@ Recommended software:
 - Simulink
 - Parallel Computing Toolbox, optional but recommended
 - Vehicle Dynamics Blockset
+- Automated Driving Toolbox
 
 ---
 
